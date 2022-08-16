@@ -4,9 +4,10 @@
 #define TAM 8
 void imprimeVetor(int vetor[])
 {
+    printf("\n");
     for (int i = 0; i < TAM; i++)
     {
-        printf("%d \n", vetor[i]);
+        printf("%d ", vetor[i]);
     }
 }
 
@@ -27,13 +28,15 @@ void merge(int vetor[TAM], int esquerdo, int meio, int direito)
     {
         vetorR[j] = vetor[meio + j + 1];
     }
-    i, j = 0;
+    i = 0; // erro estava aqui aparentemente entrei com i,j=0; apos mudança funcionou.
+    j = 0;
     k = esquerdo;
 
     while (i < n1 && j < n2)
     {
         if (vetorL[i] <= vetorR[j])
         {
+            imprimeVetor(vetor);
             vetor[k] = vetorL[i];
             i++;
         }
@@ -46,13 +49,15 @@ void merge(int vetor[TAM], int esquerdo, int meio, int direito)
     }
     while (i < n1)
     {
+        imprimeVetor(vetor);
         vetor[k] = vetorL[i];
         i++;
         k++;
     }
     while (j < n2)
     {
-        vetor[k] = vetorL[j];
+        imprimeVetor(vetor);
+        vetor[k] = vetorR[j];
         j++;
         k++;
     }
@@ -63,7 +68,7 @@ void merge_sort(int vetor[TAM], int esquerdo, int direito)
     if (esquerdo < direito)
     {
         int meio = esquerdo + (direito - esquerdo) / 2;
-        merge_sort(vetor, meio, direito);
+        merge_sort(vetor, esquerdo, meio);
         merge_sort(vetor, meio + 1, direito);
         merge(vetor, esquerdo, meio, direito);
     }
@@ -71,9 +76,9 @@ void merge_sort(int vetor[TAM], int esquerdo, int direito)
 
 int main(int argc, char **argv)
 {
-    int vetor[] = {3, 0, 7, 1, 5, 2, 4, 6};
+    int vetor[TAM] = {3, 0, 7, 1, 5, 2, 4, 6}; // colocar o TAM DO VETOR
     imprimeVetor(vetor);
-    merge_sort(vetor, 0, TAM);
+    merge_sort(vetor, 0, TAM - 1);
     imprimeVetor(vetor);
     return 0;
 }
