@@ -1,3 +1,7 @@
+/*Alunos: José Augusto Moreira, Henrique Melero e Vinicius Guerra.
+Estrutura de dados 1
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -5,19 +9,16 @@
 #include <unistd.h>
 
 typedef struct float_vector Float_Vector;
+
 Float_Vector *alocavetor(long int tamanho);
-void desaloca_vetor(Float_Vector **ptrvet);
 void imprimeVetor(Float_Vector *ptrvet, long int tamanho);
-void swap(long int *valor_a, long int *valor_b);
+void swap(float *valor_a, float *valor_b);
 void quick_sort(Float_Vector *ptrvet, long int inicio, long int fim, long int tamanho);
 
 /**
  *  @brief Estrutura dos veteores ultilizados nos algoritimos.
  *
- *  @param tam Capacidade do ptrvet
- *
  */
-
 struct float_vector
 {
     long int tamanho;
@@ -51,35 +52,6 @@ Float_Vector *alocavetor(long int tamanho)
     }
     return ptrvet;
 }
-/*void append(Float_Vector *vector, float n)
-{
-    if (_isFull(vector))
-    {
-        // ERROR
-        fprintf(stderr, "Error in append\nVector is full!");
-        exit(EXIT_FAILURE);
-    }
-    // inserir
-    vector->valores[vector->size++] = n;
-}*/
-/**
- *  @brief Função para desalocar um ptrvet de floats.
- *
- *  @param ptrvet, um ponteiro para o ptrvet de floats;
- *
- */
-
-void desaloca_ptrvet(Float_Vector **ptrvet)
-{
-    Float_Vector *ptr = *ptrvet;
-    free(ptr->valores); // Liberamos a casa do ptrvet
-    free(ptr);
-    *ptrvet = NULL;
-    if (ptr != NULL) // Liberamos a estrutura
-        printf("\nDesaloca ptrvet");
-    else
-        printf("\nDesaloca");
-}
 
 /**
  *  @brief Função para imprimir um ptrvet de floats.
@@ -107,40 +79,58 @@ void imprimeVetor(Float_Vector *ptrvet, long int tamanho)
  *
  */
 
-void swap(long int *valor_a, long int *valor_b)
+void swap(float *valor_a, float *valor_b)
 {
-    long int aux;
+    float aux;
     aux = *valor_a;
     *valor_a = *valor_b;
     *valor_b = aux;
 }
-
-void quick_sort(Float_Vector *ptrvet, long int inicio, long int fim, long int tamanho)
+/**
+ *@brief Menu function para realizar switch entre os tipos de sorts.
+ **/
+int menu()
 {
-    imprimeVetor(ptrvet, tamanho);
-    printf("quick sort");
-    long int pivo, esq, dir, meio, aux;
-    Float_Vector *ptr = ptrvet;
+    int op;
+    printf("\n==========[ SORTS ] =========\n");
+    printf("1 - QuickSort\n");
+    printf("2 - MergeSort\n");
+    printf("3 - BubbleSort \n");
+    printf("4 - InsertionSort\n");
+    scanf("%d", &op);
+    return op;
+}
+
+/**
+ * @brief função do Quicksort com melhorias realizadas.
+ *
+ * @param tamanho, recebe o tamanho do vetor.
+ * @param vetor, recebe o vetor.
+ * @param inicio, recebe o começo do vetor.
+ * @param fim, recebe a ultima posiççao do vetor.
+ *
+ **/
+void quick_sort(Float_Vector *vetor, long int inicio, long int fim, long int tamanho)
+{
+    long int pivo, esq, dir, meio;
 
     // Limites da esquerda e direita da região analisada
-    esq = ptr->valores[inicio];
-    printf("\n%ld\n", esq);
+    esq = inicio;
+    dir = fim;
 
-    dir = ptr->valores[fim];
-    printf("\n%ld\n", dir);
     // Ajustando auxiliares do centro
     meio = (int)((esq + dir) / 2);
-    pivo = ptr->valores[meio];
+    pivo = vetor->valores[meio];
 
     while (dir > esq)
     {
 
-        while (ptr->valores[esq] < pivo)
+        while (vetor->valores[esq] < pivo)
         {
             esq = esq + 1;
         }
 
-        while (ptr->valores[dir] > pivo)
+        while (vetor->valores[dir] > pivo)
         {
             dir = dir - 1;
         }
@@ -149,9 +139,7 @@ void quick_sort(Float_Vector *ptrvet, long int inicio, long int fim, long int ta
         {
 
             // Realiza uma troca
-            aux = ptr->valores[esq];
-            ptr->valores[esq] = ptr->valores[dir];
-            ptr->valores[dir] = aux;
+            swap(&vetor->valores[esq], &vetor->valores[dir]);
 
             // Faz os limites laterais caminharem para o centro
             esq = esq + 1;
@@ -162,12 +150,132 @@ void quick_sort(Float_Vector *ptrvet, long int inicio, long int fim, long int ta
     // Recursão para continuar ordenando
     if (inicio < dir)
     {
-        quick_sort(ptr, inicio, dir, tamanho);
+        quick_sort(vetor, inicio, dir, tamanho);
     }
 
     // Recursão para continuar ordenando
     if (esq < fim)
     {
-        quick_sort(ptr, esq, fim, tamanho);
+        quick_sort(vetor, esq, fim, tamanho);
+    }
+}
+
+void merge(Float_Vector *vetor, long int esquerdo, long int meio, long int direito)
+{
+    long int i, j, k; // auxiliares
+
+    long int n1 = meio - esquerdo + 1; // +1 por causa do indice 0
+    long int n2 = direito - meio;
+
+    float vetorL[n1], vetorR[n2]; // indice da direita apenas
+
+    for (i = 0; i < n1; i++)
+    {
+        vetorL[i] = vetor->valores[esquerdo + i];
+    }
+    for (j = 0; j < n2; j++)
+    {
+        vetorR[j] = vetor->valores[meio + j + 1];
+    }
+    i = 0; // erro estava aqui aparentemente entrei com i,j=0; apos mudança funcionou.
+    j = 0;
+    k = esquerdo;
+
+    while (i < n1 && j < n2)
+    {
+        if (vetorL[i] <= vetorR[j])
+        {
+            vetor->valores[k] = vetorL[i];
+            i++;
+        }
+        else
+        {
+            vetor->valores[k] = vetorR[j];
+            j++;
+        }
+        k++;
+    }
+    while (i < n1)
+    {
+        vetor->valores[k] = vetorL[i];
+        i++;
+        k++;
+    }
+    while (j < n2)
+    {
+        vetor->valores[k] = vetorR[j];
+        j++;
+        k++;
+    }
+}
+
+void merge_sort(Float_Vector *vetor, long int esquerdo, long int direito)
+{
+
+    if (esquerdo < direito)
+    {
+        long int meio = esquerdo + (direito - esquerdo) / 2;
+        merge_sort(vetor, esquerdo, meio);
+        merge_sort(vetor, meio + 1, direito);
+        merge(vetor, esquerdo, meio, direito);
+    }
+}
+
+/**
+ * @brief função do bubble_sort com melhorias realizadas.
+ *
+ * @param tamanho, recebe o tamanho do vetor.
+ * @param vetor, recebe o vetor.
+ *
+ **/
+void bubble(Float_Vector *vetor, long int tamanho)
+{
+
+    for (int i = 0; i < tamanho - 1; i++)
+    {
+        for (int j = 0; j < tamanho - 1; j++)
+        {
+
+            if (vetor->valores[j] > vetor->valores[j + 1])
+            {
+
+                swap(&vetor->valores[j], &vetor->valores[j + 1]);
+            }
+        }
+    }
+}
+/**
+ * @brief função do insertionSort com melhorias realizadas.
+ *
+ * @param tamanho, recebe o tamanho do vetor.
+ * @param vetor, recebe o vetor.
+ *
+ **/
+void insertionSort(Float_Vector *vetor, long int tamanho)
+{
+    long int i, j, atual;
+
+    for (i = 1; i < tamanho; i++)
+    {
+
+        // Elemento atual em análise
+        atual = vetor->valores[i];
+
+        // Elemento anterior ao analisado
+        j = i - 1;
+
+        // Analisando membros anteriores
+        while ((j >= 0) && (atual < vetor->valores[j]))
+        {
+
+            // Posiciona os elmeentos uma posição para frente
+            vetor->valores[j + 1] = vetor->valores[j];
+
+            // Faz o j andar para trás
+            j = j - 1;
+        }
+
+        // Agora que o espaço foi aberto, colocamos o atual (Menor número) na posição correta
+        vetor->valores[j + 1] = atual;
     }
 }
